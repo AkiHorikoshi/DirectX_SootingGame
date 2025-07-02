@@ -15,7 +15,7 @@
 #include <DirectXMath.h>
 
 
-enum BULLET_TYPE
+enum BULLET_TYPE_ID
 {
 	NORMAL_BULLET,			// 直線
 	WAVE_BULLET,			// sinウェーブ
@@ -28,7 +28,7 @@ void BulletFinalize();
 void BulletUpdate(double elapsed_time);
 void BulletDraw();
 
-void ShotBullet(BULLET_TYPE type, const DirectX::XMFLOAT2& position);
+void ShotBullet(BULLET_TYPE_ID type, const DirectX::XMFLOAT2& position);
 
 
 #endif  //BULLET_H

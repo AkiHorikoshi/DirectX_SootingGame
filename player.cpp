@@ -18,8 +18,8 @@ using namespace DirectX;
 #include "bullet.h"
 
 
-constexpr float PLAYER_SPEED = 0.8f;		// プレイヤー移動速度
-constexpr float SHOTDELAY = 0.1f;			// 弾の発射間隔
+constexpr float PLAYER_SPEED = 0.5f;		// プレイヤー移動速度
+constexpr float SHOTDELAY = 0.3f;			// 弾の発射間隔
 
 
 static int g_PlayerTexid = -1;
@@ -110,7 +110,7 @@ void PlayerUpdate(double elapsed_time)
 	{
 		if (KeyLoggerIsPressed(KK_SPACE))
 		{
-			ShotBullet(NORMAL_BULLET, g_PlayerPos);
+			ShotBullet(WAVE_BULLET, g_PlayerPos);
 		}
 		g_ShotDelay = SHOTDELAY;
 	}

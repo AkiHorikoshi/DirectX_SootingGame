@@ -25,7 +25,7 @@ struct EnemySpawn
 	double rate;					// 生成間隔
 	double spawnTime;				// 生成を行った時間
 	int spawnCount;					// 生成したエネミーの数
-	bool isEnded;					// 生成が終わったか
+	bool isEnded;					// 生成数が最大になったか
 };
 
 

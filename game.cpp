@@ -38,7 +38,7 @@ void GameFinalize()
 
 void GameUpdate(double elapsed_time)
 {
-	EnemySpawnerUpdate(elapsed_time);
+	// EnemySpawnerUpdate(elapsed_time);
 
 	PlayerUpdate(elapsed_time);
 	BulletUpdate(elapsed_time);

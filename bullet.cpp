@@ -22,11 +22,17 @@ static constexpr float BULLET_SPEED = 300.0f;			// íeÇÃë¨ìx
 
 
 /**********************************     ç\ë¢ëÃíËã`    ***************************************/
+struct BulletType
+{
+
+};
+
 struct Bullet
 {
 	XMFLOAT2 position;
 	XMFLOAT2 size;
 	XMFLOAT2 velocity;
+	float offsetY;
 	double lifeTime;
 	bool isEnable;
 };
@@ -50,7 +56,7 @@ void BulletInitialize()
 	{
 		bull.isEnable = false;
 	}
-	g_BulletTexid = TextureLoad(L"resource/texture/tama.png");
+	g_BulletTexid = TextureLoad(L"resource/texture/tama2.png");
 }
 
 void BulletFinalize()
@@ -105,17 +111,18 @@ void BulletUpdate(double elapsed_time)
 		// égÇÌÇÍÇƒÇ»Ç¢íeÇÃèàóùÇÕÇµÇ»Ç¢
 		if (!g_WaveBullets[i].isEnable)	continue;
 
-		g_WaveAngle[i] += XM_2PI / 2 * elapsed_time;
+		g_WaveAngle[i] += XM_2PI / 2 * elapsed_time * 5.0f;
 
 		if (i % 2 == 0)
 		{
-			g_WaveBullets[i].velocity.y += sinf(g_WaveAngle[i]) * 0.5f;
+			g_WaveBullets[i].velocity.y += sinf(g_WaveAngle[i]) * 300.0f;
 		}
 		else
 		{
-			g_WaveBullets[i].velocity.y += -sinf(g_WaveAngle[i]) * 0.5f;
+			g_WaveBullets[i].velocity.y += -sinf(g_WaveAngle[i]) * 300.0f;
 		}
 
+		g_WaveBullets[i].position.y = g_WaveBullets[i].offsetY;
 		// ââéZópÇÃïœêîÇ…äiî[
 		XMVECTOR pos = XMLoadFloat2(&g_WaveBullets[i].position);
 		XMVECTOR vel = XMLoadFloat2(&g_WaveBullets[i].velocity);
@@ -145,7 +152,7 @@ void BulletDraw()
 	}
 }
 
-void ShotBullet(BULLET_TYPE type, const XMFLOAT2& position)
+void ShotBullet(BULLET_TYPE_ID type, const XMFLOAT2& position)
 {
 	switch (type)
 	{
@@ -160,6 +167,7 @@ void ShotBullet(BULLET_TYPE type, const XMFLOAT2& position)
 			bull.position = position;
 			bull.size     = { 32.0f, 32.0f };
 			bull.velocity = { BULLET_SPEED, 0.0 };
+			bull.offsetY = position.y;
 			break;
 		}
 	break;
@@ -176,6 +184,7 @@ void ShotBullet(BULLET_TYPE type, const XMFLOAT2& position)
 				bull.position = position;
 				bull.size     = { 32.0f, 32.0f };
 				bull.velocity = { BULLET_SPEED, 0.0 };
+				bull.offsetY = position.y;
 				break;
 			}
 		}
