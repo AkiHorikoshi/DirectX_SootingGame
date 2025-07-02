@@ -17,11 +17,11 @@ using namespace DirectX;
 
 
 /**********************************     定数定義    **************************************/
-static constexpr unsigned int BULLET_MAX = 512;
-static constexpr float BULLET_SPEED = 600.0f;
+static constexpr unsigned int BULLET_MAX = 512;			// 弾の表示最大数（タイプごと）
+static constexpr float BULLET_SPEED = 300.0f;			// 弾の速度
 
 
-/*********************************     構造体定義    **************************************/
+/**********************************     構造体定義    ***************************************/
 struct Bullet
 {
 	XMFLOAT2 position;
@@ -33,14 +33,20 @@ struct Bullet
 
 
 /*******************************     グローバル変数宣言    ************************************/
-static Bullet g_Bullets[BULLET_MAX]{};
-static int g_BulletTexid{};
+static Bullet g_NormalBullets[BULLET_MAX]{};			// ノーマルの弾
+static Bullet g_WaveBullets[BULLET_MAX]{};				// 波打つ弾
+static int g_BulletTexid{};								// 弾のテクスチャ管理番号
+static float g_WaveAngle[BULLET_MAX]{};					// 波打つ弾のsin波の大きさ？角度？
 
 
 /************************************     関数宣言    ****************************************/
 void BulletInitialize()
 {
-	for (Bullet& bull : g_Bullets)
+	for (Bullet& bull : g_NormalBullets)
+	{
+		bull.isEnable = false;
+	}
+	for (Bullet& bull : g_WaveBullets)
 	{
 		bull.isEnable = false;
 	}
@@ -53,7 +59,7 @@ void BulletFinalize()
 
 void BulletUpdate(double elapsed_time)
 {
-	for (Bullet& bull : g_Bullets)
+	for (Bullet& bull : g_NormalBullets)
 	{
 		// 弾の表示時間を計測
 		bull.lifeTime += elapsed_time;
@@ -81,11 +87,57 @@ void BulletUpdate(double elapsed_time)
 		XMStoreFloat2(&bull.position, pos);
 		XMStoreFloat2(&bull.velocity, vel);
 	}
+
+	for (int i = 0; i < BULLET_MAX; i++)
+	{
+		// 弾の表示時間を計測
+		g_WaveBullets[i].lifeTime += elapsed_time;
+		// 弾の使用フラグを折る
+		if (g_WaveBullets[i].lifeTime >= 5.0)
+		{
+			g_WaveBullets[i].isEnable = false;
+		}
+		if (g_WaveBullets[i].position.x > Direct3D_GetBackBufferWidth())
+		{
+			g_WaveBullets[i].isEnable = false;
+		}
+
+		// 使われてない弾の処理はしない
+		if (!g_WaveBullets[i].isEnable)	continue;
+
+		g_WaveAngle[i] += XM_2PI / 2 * elapsed_time;
+
+		if (i % 2 == 0)
+		{
+			g_WaveBullets[i].velocity.y += sinf(g_WaveAngle[i]) * 0.5f;
+		}
+		else
+		{
+			g_WaveBullets[i].velocity.y += -sinf(g_WaveAngle[i]) * 0.5f;
+		}
+
+		// 演算用の変数に格納
+		XMVECTOR pos = XMLoadFloat2(&g_WaveBullets[i].position);
+		XMVECTOR vel = XMLoadFloat2(&g_WaveBullets[i].velocity);
+
+		// ポジションをずらす
+		pos += vel * elapsed_time;
+
+		// 元の変数に返す
+		XMStoreFloat2(&g_WaveBullets[i].position, pos);
+		XMStoreFloat2(&g_WaveBullets[i].velocity, vel);
+	}
 }
 
 void BulletDraw()
 {
-	for (Bullet& bull : g_Bullets)
+	for (Bullet& bull : g_NormalBullets)
+	{
+		if (!bull.isEnable)	continue;
+
+		Sprite_Draw(g_BulletTexid, bull.position, bull.size, { 0, 0 }, { 512, 512 });
+	}
+	for (Bullet& bull : g_WaveBullets)
 	{
 		if (!bull.isEnable)	continue;
 
@@ -93,18 +145,40 @@ void BulletDraw()
 	}
 }
 
-void ShotBullet(const XMFLOAT2& position)
+void ShotBullet(BULLET_TYPE type, const XMFLOAT2& position)
 {
-	for (int i = 0; i < BULLET_MAX; i++)
+	switch (type)
 	{
-		// 使われているBullet管理番号の時は処理しないで次へ
-		if (g_Bullets[i].isEnable) continue;
+	case NORMAL_BULLET:
+		for (Bullet& bull : g_NormalBullets)
+		{
+			// 使われているBullet管理番号の時は処理しないで次へ
+			if (bull.isEnable) continue;
 
-		g_Bullets[i].isEnable = true;
-		g_Bullets[i].lifeTime = 0.0f;
-		g_Bullets[i].position = position;
-		g_Bullets[i].size = { 32.0f, 32.0f };
-		g_Bullets[i].velocity = { BULLET_SPEED, 0.0 };
+			bull.isEnable = true;
+			bull.lifeTime = 0.0f;
+			bull.position = position;
+			bull.size     = { 32.0f, 32.0f };
+			bull.velocity = { BULLET_SPEED, 0.0 };
+			break;
+		}
+	break;
+	case WAVE_BULLET:
+		for (int i = 0; i < 2; i++)
+		{
+			for (Bullet& bull : g_WaveBullets)
+			{
+				// 使われているBullet管理番号の時は処理しないで次へ
+				if (bull.isEnable) continue;
+
+				bull.isEnable = true;
+				bull.lifeTime = 0.0f;
+				bull.position = position;
+				bull.size     = { 32.0f, 32.0f };
+				bull.velocity = { BULLET_SPEED, 0.0 };
+				break;
+			}
+		}
 		break;
 	}
 }

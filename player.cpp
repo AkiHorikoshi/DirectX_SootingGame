@@ -18,8 +18,9 @@ using namespace DirectX;
 #include "bullet.h"
 
 
-constexpr float DELAY_TIME = 0.2f;
-constexpr float PLAYER_SPEED = 0.8f;
+constexpr float PLAYER_SPEED = 0.8f;		// プレイヤー移動速度
+constexpr float SHOTDELAY = 0.1f;			// 弾の発射間隔
+
 
 static int g_PlayerTexid = -1;
 static XMFLOAT2 g_PlayerPos{};
@@ -27,7 +28,8 @@ static XMFLOAT2 g_PlayerSize{};
 static XMFLOAT2 g_PlayerVelocity{};
 static float g_Speed{};
 
-static float g_DelayTime;		// 弾の発射間隔
+static float g_ShotDelay;
+
 
 void PlayerInitialize(const XMFLOAT2& playerpos)
 {
@@ -37,7 +39,7 @@ void PlayerInitialize(const XMFLOAT2& playerpos)
 	g_PlayerVelocity = { 0.0f, 0.0f };
 	g_Speed = PLAYER_SPEED;
 
-	g_DelayTime = DELAY_TIME;
+	g_ShotDelay = SHOTDELAY;
 }
 
 void PlayerFinalize()
@@ -53,8 +55,7 @@ void PlayerUpdate(double elapsed_time)
 
 	XMVECTOR direction{};
 
-	// キーボード
-	// WASD移動
+	// キーボード WASD移動
 	if (KeyLoggerIsPressed(KK_W))
 	{
 		direction += { 0.0f, -1.0f};
@@ -103,15 +104,15 @@ void PlayerUpdate(double elapsed_time)
 		g_PlayerPos.y = Direct3D_GetBackBufferHeight() - g_PlayerSize.y;
 	}
 
-	g_DelayTime += -elapsed_time;
-	if (g_DelayTime <= 0)
+	// 弾の発射
+	g_ShotDelay += -elapsed_time;
+	if (g_ShotDelay <= 0)
 	{
-		/* 弾の発射 */
 		if (KeyLoggerIsPressed(KK_SPACE))
 		{
-			ShotBullet(g_PlayerPos);
+			ShotBullet(NORMAL_BULLET, g_PlayerPos);
 		}
-		g_DelayTime = DELAY_TIME;
+		g_ShotDelay = SHOTDELAY;
 	}
 }
 
