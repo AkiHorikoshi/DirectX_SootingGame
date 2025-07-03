@@ -19,7 +19,7 @@ using namespace DirectX;
 
 
 constexpr float PLAYER_SPEED = 0.5f;		// プレイヤー移動速度
-constexpr float SHOTDELAY = 0.3f;			// 弾の発射間隔
+constexpr float SHOTDELAY = 0.1f;			// 弾の発射間隔
 
 
 static int g_PlayerTexid = -1;
@@ -110,7 +110,7 @@ void PlayerUpdate(double elapsed_time)
 	{
 		if (KeyLoggerIsPressed(KK_SPACE))
 		{
-			ShotBullet(WAVE_BULLET, g_PlayerPos);
+			ShotBullet(MIDDLE_RANGE_BULLET, { g_PlayerPos.x + (g_PlayerSize.x * 0.3f), g_PlayerPos.y + (g_PlayerSize.y * 0.3f) });
 		}
 		g_ShotDelay = SHOTDELAY;
 	}

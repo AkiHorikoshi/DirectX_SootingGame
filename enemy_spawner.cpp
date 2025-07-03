@@ -19,8 +19,9 @@ static constexpr unsigned int NEMY_SPAWNER_MAX = 100;
 struct EnemySpawn
 {
 	XMFLOAT2 position;				// エネミーの発生場所
-	ENEMY_TYPE_ID id;				// エネミーの種類
+	ENEMY_TYPE_ID id;				// エネミーの種類を管理するID
 	int count;						// 生成させられるエネミーの最大数
+
 	double time;					// スポナーを発生させる時間
 	double rate;					// 生成間隔
 	double spawnTime;				// 生成を行った時間
@@ -53,11 +54,11 @@ void EnemySpawnerUpdate(double elapsed_time)
 		// 使い終わったスポナーはスルー
 		if (g_EnemySpawners[i].isEnded) continue;
 		// 使用時間に達していないスポナーにたどり着いたらbreakで抜ける（それ以降を観察しても使用時間に達しているものはないから）
-		if (g_EnemySpawners[i].time < g_Time) break;
+		if (g_EnemySpawners[i].time > g_Time) break;
 		// 一回目の生成時だけの処理
 		if (g_EnemySpawners[i].count == 0)
 		{
-			g_EnemySpawners[i].spawnTime = g_Time + g_EnemySpawners[i].rate;
+			g_EnemySpawners[i].spawnTime = g_Time - g_EnemySpawners[i].rate - 0.00001;
 		}
 		// 前回の生成時間から生成間隔分経っていたら
 		if (g_EnemySpawners[i].rate <= g_Time - g_EnemySpawners[i].spawnTime);

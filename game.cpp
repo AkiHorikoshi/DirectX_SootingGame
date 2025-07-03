@@ -24,8 +24,8 @@ void GameInitialize()
 	EnemyInitialize();
 	EnemySpawnerInitialize();
 
-	CreateEnemySpawner({ 1000.0f, 300.0f }, ENEMY_01, 100.0, 1000.0, 100);
-	CreateEnemySpawner({ 1000.0f, 300.0f }, ENEMY_02, 500.0, 1000.0, 100);
+	CreateEnemySpawner({ 1000.0f, 300.0f }, ENEMY_01, 3.0, 3.0, 100);
+	CreateEnemySpawner({ 1000.0f, 300.0f }, ENEMY_02, 5.0, 1.0, 100);
 }
 
 void GameFinalize()
@@ -38,7 +38,7 @@ void GameFinalize()
 
 void GameUpdate(double elapsed_time)
 {
-	// EnemySpawnerUpdate(elapsed_time);
+	//EnemySpawnerUpdate(elapsed_time);
 
 	PlayerUpdate(elapsed_time);
 	BulletUpdate(elapsed_time);

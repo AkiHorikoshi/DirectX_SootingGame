@@ -13,12 +13,14 @@
 
 
 #include <DirectXMath.h>
+#include "collision.h"
 
 
 enum BULLET_TYPE_ID
 {
 	NORMAL_BULLET,			// 直線
 	WAVE_BULLET,			// sinウェーブ
+	MIDDLE_RANGE_BULLET,	// 全方位中距離
 	BULLET_TYPE_MAX
 };
 
@@ -30,5 +32,7 @@ void BulletDraw();
 
 void ShotBullet(BULLET_TYPE_ID type, const DirectX::XMFLOAT2& position);
 
+// bool BulletIsEnable(int indx);
+// Circle BulletGetCollision(int index);
 
 #endif  //BULLET_H

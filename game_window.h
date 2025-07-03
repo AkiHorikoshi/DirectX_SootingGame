@@ -7,8 +7,8 @@
 
 ================================================*/
 
-static const constexpr int SCREEN_WIDTH = 1120;
-static const constexpr int SCREEN_HEIGHT = 630;
+static const constexpr int SCREEN_WIDTH = 1440;
+static const constexpr int SCREEN_HEIGHT = 810;
 
 
 #ifndef GAME_WINDOW_H
