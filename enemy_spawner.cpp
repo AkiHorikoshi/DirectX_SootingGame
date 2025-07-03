@@ -61,7 +61,7 @@ void EnemySpawnerUpdate(double elapsed_time)
 			g_EnemySpawners[i].spawnTime = g_Time - g_EnemySpawners[i].rate - 0.00001;
 		}
 		// ‘O‰ñ‚Ì¶¬ŠÔ‚©‚ç¶¬ŠÔŠu•ªŒo‚Á‚Ä‚¢‚½‚ç
-		if (g_EnemySpawners[i].rate <= g_Time - g_EnemySpawners[i].spawnTime);
+		if (g_EnemySpawners[i].rate <= g_Time - g_EnemySpawners[i].spawnTime)
 		{
 			CreateEnemy(g_EnemySpawners[i].id, g_EnemySpawners[i].position);
 			// ¶¬‚µ‚½‘Ì”‚ğ‘‚â‚·

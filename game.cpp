@@ -16,10 +16,11 @@
 
 #include "key_logger.h"
 
+Player g_Player;
 
 void GameInitialize()
 {
-	PlayerInitialize({ 200.0f, 200.0f });
+	g_Player.PlayerInitialize();
 	BulletInitialize();
 	EnemyInitialize();
 	EnemySpawnerInitialize();
@@ -33,14 +34,14 @@ void GameFinalize()
 	EnemySpawnerFinalize();
 	EnemyFinalize();
 	BulletFinalize();
-	PlayerFinalize();
+	g_Player.PlayerFinalize();
 }
 
 void GameUpdate(double elapsed_time)
 {
 	//EnemySpawnerUpdate(elapsed_time);
 
-	PlayerUpdate(elapsed_time);
+	g_Player.PlayerUpdate(elapsed_time);
 	BulletUpdate(elapsed_time);
 	EnemyUpdate(elapsed_time);
 }
@@ -49,5 +50,5 @@ void GameDraw()
 {
 	EnemyDraw();
 	BulletDraw();
-	PlayerDraw();
+	g_Player.PlayerDraw();
 }
