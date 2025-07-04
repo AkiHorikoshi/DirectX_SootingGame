@@ -18,7 +18,6 @@ using namespace DirectX;
 
 
 /**********************************     定数定義    **************************************/
-static constexpr unsigned int BULLET_MAX = 512;			// 弾の表示最大数（タイプごと）
 static constexpr float BULLET_SPEED = 300.0f;			// 弾の速度
 
 
@@ -36,7 +35,7 @@ struct Bullet
 	float offsetY;
 	double lifeTime;
 	bool isEnable;
-	Circle circle;
+	Circle collision;
 };
 
 
@@ -211,7 +210,7 @@ void ShotBullet(BULLET_TYPE_ID type, const XMFLOAT2& position)
 			bull.size     = { 32.0f, 32.0f };
 			bull.velocity = { BULLET_SPEED, 0.0 };
 			bull.offsetY  = position.y;
-			bull.circle   = { { 32.0f * 0.7, 32.0f * 0.5f }, (32.0f * 0.9f)};
+			bull.collision   = { { 32.0f * 0.7, 32.0f * 0.5f }, (32.0f * 0.9f)};
 			break;
 		}
 	break;
@@ -229,7 +228,7 @@ void ShotBullet(BULLET_TYPE_ID type, const XMFLOAT2& position)
 				bull.size     = { 32.0f, 32.0f };
 				bull.velocity = { BULLET_SPEED, 0.0 };
 				bull.offsetY  = position.y;
-				bull.circle   = { { 32.0f * 0.7, 32.0f * 0.5f }, (32.0f * 0.9f) };
+				bull.collision   = { { 32.0f * 0.7, 32.0f * 0.5f }, (32.0f * 0.9f) };
 				break;
 			}
 		}
@@ -246,12 +245,36 @@ void ShotBullet(BULLET_TYPE_ID type, const XMFLOAT2& position)
 				bull.lifeTime = 0.0f;
 				bull.position = position;
 				bull.size = { 16.0f, 16.0f };
-				bull.velocity = { BULLET_SPEED * cosf(XM_2PI / 16 * i), BULLET_SPEED * sinf(XM_2PI / 16 * i) };
+				bull.velocity = { BULLET_SPEED * cosf(XM_2PI / 16* i), BULLET_SPEED * sinf(XM_2PI / 16 * i) };
 				bull.offsetY = position.y;
-				bull.circle = { { 16.0f * 0.7, 32.0f * 0.5f }, (16.0f * 0.9f) };
+				bull.collision = { { 16.0f * 0.7, 32.0f * 0.5f }, (16.0f * 0.9f) };
 				break;
 			}
 		}
 		break;
 	}
+}
+
+bool BulletIsEnable(int index)
+{
+	// バレットが存在するはずのない値をもらったら false を返す
+	if (index < 0 || index > BULLET_MAX)
+	{
+		return false;
+	}
+
+	return g_NormalBullets[index].isEnable;
+}
+
+Circle BulletGetCollision(int index)
+{
+	float cx = g_NormalBullets[index].collision.center.x + g_NormalBullets[index].position.x;
+	float cy = g_NormalBullets[index].collision.center.y + g_NormalBullets[index].position.y;
+
+	return { {cx, cy}, g_NormalBullets[index].collision.radius };
+}
+
+void BulletDestroy(int index)
+{
+	g_NormalBullets[index].isEnable = false;
 }

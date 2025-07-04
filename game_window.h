@@ -7,16 +7,15 @@
 
 ================================================*/
 
-static const constexpr int SCREEN_WIDTH = 1440;
-static const constexpr int SCREEN_HEIGHT = 810;
-
-
 #ifndef GAME_WINDOW_H
 #define GAME_WINDOW_H
 
 #include <sdkddkver.h>
 #define WIN32_LEANAND_MEAN
 #include <Windows.h>
+
+static const constexpr int SCREEN_WIDTH = 1280;
+static const constexpr int SCREEN_HEIGHT = 720;
 
 HWND GameWindow_Create(HINSTANCE hInstance);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

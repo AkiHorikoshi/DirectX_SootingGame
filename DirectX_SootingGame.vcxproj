@@ -156,6 +156,7 @@ xcopy /D /Y "$(TargetDir)*.cso" "$(ProjectDir)resource/shader"</Command>
     <ClCompile Include="sprite_anim.cpp" />
     <ClCompile Include="system_timer.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="user_interface.cpp" />
     <ClCompile Include="WICTextureLoader11.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +178,7 @@ xcopy /D /Y "$(TargetDir)*.cso" "$(ProjectDir)resource/shader"</Command>
     <ClInclude Include="sprite_anim.h" />
     <ClInclude Include="system_timer.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="user_interface.h" />
     <ClInclude Include="WICTextureLoader11.h" />
   </ItemGroup>
   <ItemGroup>

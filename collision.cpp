@@ -19,7 +19,7 @@ bool CollisionIsOverlapCircle(const Circle& a, const Circle& b)
     float y1 = b.center.y - a.center.y;
     
     // ‚Q‚Â‚Ì‰~‚Ì’†SÀ•W‚Ì·‚Ì2æ ‚Æ ‚Q‚Â‚Ì‰~‚Ì”¼Œa‚Ì˜a‚Ì2æ‚ğ ”äŠr‚·‚éB
-    return (x1 * x1 + y1 * y1) > ((a.radius + b.radius) * (a.radius + b.radius));
+    return (x1 * x1 + y1 * y1) < ((a.radius + b.radius) * (a.radius + b.radius));
 
     // “¯‚¶–‚ğDirectXNath‚ğg‚Á‚Ä‚â‚Á‚½ê‡
     //XMVECTOR ac = XMLoadFloat2(&a.center);

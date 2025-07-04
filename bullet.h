@@ -16,6 +16,9 @@
 #include "collision.h"
 
 
+static constexpr unsigned int BULLET_MAX = 512;			// 弾の表示最大数（タイプごと）
+
+
 enum BULLET_TYPE_ID
 {
 	NORMAL_BULLET,			// 直線
@@ -32,7 +35,9 @@ void BulletDraw();
 
 void ShotBullet(BULLET_TYPE_ID type, const DirectX::XMFLOAT2& position);
 
-// bool BulletIsEnable(int indx);
-// Circle BulletGetCollision(int index);
+bool BulletIsEnable(int index);
+Circle BulletGetCollision(int index);
+
+void BulletDestroy(int index);
 
 #endif  //BULLET_H

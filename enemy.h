@@ -13,6 +13,10 @@
 
 
 #include <DirectXMath.h>
+#include "collision.h"
+
+
+constexpr int ENEMY_MAX = 128;		// 画面内に存在するエネミーの最大数
 
 
 enum ENEMY_TYPE_ID : int
@@ -30,5 +34,9 @@ void EnemyDraw();
 
 void CreateEnemy(ENEMY_TYPE_ID id, const DirectX::XMFLOAT2& position);
 
+bool EnemyIsEnable(int index);
+Circle EnemyGetCollision(int index);
+
+void EnemyDestory(int index);
 
 #endif  //ENEMY_H

@@ -8,38 +8,39 @@
 ┃															┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
 
-
 #include "enemy.h"
 #include <DirectXMath.h>
 using namespace DirectX;
 #include "direct3d.h"
 #include "texture.h"
 #include "sprite.h"
+#include "collision.h"
 
 
 /**********************************     定数定義    **************************************/
-constexpr int ENEMY_MAX = 128;		// 画面内に存在するエネミーの最大数
 constexpr float ENEMY_SPEED = -150.0f;
 
 
 /**********************************     構造体定義    ***************************************/
 struct EnemyType
 {
-	ENEMY_TYPE_ID typeId;
-	int texid;
-	XMUINT2 tPos;
-	XMUINT2 tSize;
+	ENEMY_TYPE_ID typeId;		// エネミータイプ管理ID
+	int texid;					// エネミーテクスチャ管理ID
+
+	XMUINT2 tPos;				// テクスチャ切り取り座標
+	XMUINT2 tSize;				// テクスチャサイズ
+	Circle collision;			//　当たり判定
 };
 
 struct Enemy
 {
-	EnemyType* type;
-	XMFLOAT2 position;
-	XMFLOAT2 size;
-	XMFLOAT2 velocity;
-	double lifeTime;
-	float offsetY;
-	bool isEnable;
+	EnemyType* type;			// エネミータイプ別情報
+	XMFLOAT2 position;			// エネミー初期位置
+	XMFLOAT2 size;				// ポリゴンサイズ
+	XMFLOAT2 velocity;			// 進行方向
+	double lifeTime;			// 発生してからの経過時間
+	float offsetY;				// 発生地点Y座標
+	bool isEnable;				// 使用中フラグ
 };
 
 
@@ -61,11 +62,13 @@ void EnemyInitialize()
 	g_EnemyType[ENEMY_01].typeId = ENEMY_01;
 	g_EnemyType[ENEMY_01].tPos = { 0, 0 };
 	g_EnemyType[ENEMY_01].tSize = { 512, 512 };
+	g_EnemyType[ENEMY_01].collision = { {32.0f,32.0f}, 32.0f };
 
 	g_EnemyType[ENEMY_02].texid = TextureLoad(L"resource/texture/text_itetu.png");
 	g_EnemyType[ENEMY_02].typeId = ENEMY_02;
 	g_EnemyType[ENEMY_02].tPos = { 0, 0 };
 	g_EnemyType[ENEMY_02].tSize = { 256, 128 };
+	g_EnemyType[ENEMY_02].collision = { {32.0f,32.0f}, 32.0f };
 }
 
 void EnemyFinalize()
@@ -136,4 +139,29 @@ void CreateEnemy(ENEMY_TYPE_ID id, const DirectX::XMFLOAT2& position)
 		ene.offsetY = position.y;
 		break;
 	}
+}
+
+bool EnemyIsEnable(int index)
+{
+	// バレットが存在するはずのない値をもらったら false を返す
+	if (index < 0 || index > ENEMY_MAX)
+	{
+		return false;
+	}
+	return g_Enemys[index].isEnable;
+}
+
+Circle EnemyGetCollision(int index)
+{
+	int id = g_Enemys[index].type->typeId;
+
+	float cx = g_EnemyType[id].collision.center.x + g_Enemys[index].position.x;
+	float cy = g_EnemyType[id].collision.center.y + g_Enemys[index].position.y;
+
+	return { {cx,cy},g_Enemys[index].type->collision.radius };
+}
+
+void EnemyDestory(int index)
+{
+	g_Enemys[index].isEnable = false;
 }
