@@ -15,6 +15,7 @@ using namespace DirectX;
 #include "texture.h"
 #include "sprite.h"
 #include "collision.h"
+//#include "effect.h"
 
 
 /**********************************     定数定義    **************************************/
@@ -30,6 +31,7 @@ struct EnemyType
 	XMUINT2 tPos;				// テクスチャ切り取り座標
 	XMUINT2 tSize;				// テクスチャサイズ
 	Circle collision;			//　当たり判定
+	int hp_max;
 };
 
 struct Enemy
@@ -39,8 +41,10 @@ struct Enemy
 	XMFLOAT2 size;				// ポリゴンサイズ
 	XMFLOAT2 velocity;			// 進行方向
 	double lifeTime;			// 発生してからの経過時間
+	int hp;
 	float offsetY;				// 発生地点Y座標
 	bool isEnable;				// 使用中フラグ
+	bool isDanege;				// ダメージを受けたか
 };
 
 
@@ -63,12 +67,14 @@ void EnemyInitialize()
 	g_EnemyType[ENEMY_01].tPos = { 0, 0 };
 	g_EnemyType[ENEMY_01].tSize = { 512, 512 };
 	g_EnemyType[ENEMY_01].collision = { {32.0f,32.0f}, 32.0f };
+	g_EnemyType[ENEMY_01].hp_max = 2;
 
 	g_EnemyType[ENEMY_02].texid = TextureLoad(L"resource/texture/text_itetu.png");
 	g_EnemyType[ENEMY_02].typeId = ENEMY_02;
 	g_EnemyType[ENEMY_02].tPos = { 0, 0 };
 	g_EnemyType[ENEMY_02].tSize = { 256, 128 };
 	g_EnemyType[ENEMY_02].collision = { {32.0f,32.0f}, 32.0f };
+	g_EnemyType[ENEMY_02].hp_max = 5;
 }
 
 void EnemyFinalize()
@@ -119,7 +125,9 @@ void EnemyDraw()
 	{
 		if (!ene.isEnable)	continue;
 
-		Sprite_Draw(ene.type->texid, ene.position, ene.size, ene.type->tPos, ene.type->tSize);
+		Sprite_Draw(ene.type->texid, ene.position, ene.size, ene.type->tPos, ene.type->tSize,ene.isDanege ? XMFLOAT4{1.0f,1.0f,0.0f,1.0f} : XMFLOAT4{1.0f, 1.0f, 0.0f, 1.0f});
+		
+		ene.isDanege = false;
 	}
 }
 
@@ -136,7 +144,9 @@ void CreateEnemy(ENEMY_TYPE_ID id, const DirectX::XMFLOAT2& position)
 		ene.size = { 64.0f, 64.0f };
 		ene.velocity = { ENEMY_SPEED, 0.0 };
 		ene.lifeTime = 0.0;
+		ene.hp = g_EnemyType[id].hp_max;
 		ene.offsetY = position.y;
+		ene.isDanege = false;
 		break;
 	}
 }
@@ -159,6 +169,17 @@ Circle EnemyGetCollision(int index)
 	float cy = g_EnemyType[id].collision.center.y + g_Enemys[index].position.y;
 
 	return { {cx,cy},g_Enemys[index].type->collision.radius };
+}
+
+void EnemyDamege(int index)
+{
+	g_Enemys[index].hp--;
+	g_Enemys[index].isDanege = true;
+
+	if (g_Enemys[index].hp <= 0)
+	{
+		g_Enemys[index].isEnable = false;
+	}
 }
 
 void EnemyDestory(int index)

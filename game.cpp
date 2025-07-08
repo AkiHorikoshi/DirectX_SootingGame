@@ -16,14 +16,16 @@
 #include "game_window.h"
 #include "key_logger.h"
 #include "user_interface.h"
+//#include "effect.h"
 
 
 void HitJudgmentBulletVSEnemy();
 void HitJudgmentPlayerVSEnemy();
 
 
-Player g_Player;
 UI g_Ui;
+Player g_Player;
+// Effect g_Effect;
 
 
 void GameInitialize()
@@ -58,6 +60,8 @@ void GameUpdate(double elapsed_time)
 
 	HitJudgmentBulletVSEnemy();
 	HitJudgmentPlayerVSEnemy();
+	
+	//g_Effect.EffectUpDate(elapsed_time);
 }
 
 void GameDraw()
@@ -65,6 +69,7 @@ void GameDraw()
 	EnemyDraw();
 	BulletDraw();
 	g_Player.Draw();
+	//g_Effect.EffectDraw();
 
 	g_Ui.UiDraw();
 }
@@ -87,7 +92,7 @@ void HitJudgmentBulletVSEnemy()
 			{
 				// 当たった弾とエネミーを消す
 				BulletDestroy(bulli);
-				EnemyDestory(enei);
+				EnemyDamege(enei);
 
 				g_Ui.AddPoint(1);
 			}
@@ -99,7 +104,7 @@ void HitJudgmentPlayerVSEnemy()
 {
 	if (!g_Player.IsEnable())return;
 
-	for (int enei = 0; enei + ENEMY_MAX; enei++)
+	for (int enei = 0; enei < ENEMY_MAX; enei++)
 	{
 		if (!EnemyIsEnable(enei)) continue;
 
@@ -107,7 +112,7 @@ void HitJudgmentPlayerVSEnemy()
 		{
 			// 当たった弾とエネミーを消す
 			g_Player.Destroy();
-			EnemyDestory(enei);
+			EnemyDamege(enei);
 
 			g_Ui.AddPoint(1);
 		}
