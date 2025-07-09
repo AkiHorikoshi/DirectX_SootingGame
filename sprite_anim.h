@@ -23,4 +23,7 @@ void SpriteAnimDraw(int playid, const DirectX::XMFLOAT2& dPosition, const Direct
 int SpriteAnimRefisterPattern(int texId, int pattMax, int hPattMax, double pattSeco, const DirectX::XMUINT2& pattPos, const DirectX::XMUINT2& pattSize, bool isLooped);
 
 int SpriteAnimCreatePlayer(int anim_pattern_id);
+void SpriteAnimDestroyPlayer(int index);
+bool SpriteAnim_IsStopped(int index);
+
 #endif //SPRITE_ANIM_H

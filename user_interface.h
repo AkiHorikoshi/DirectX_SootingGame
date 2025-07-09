@@ -19,13 +19,13 @@
 class UI
 {
 private:
-	static constexpr DirectX::XMFLOAT2 TIME_POSITION = { SCREEN_WIDTH - 96.0f, 8.0f };
+	static constexpr DirectX::XMFLOAT2 TIME_POSITION = { SCREEN_WIDTH - 80.0f, 8.0f };
 	static constexpr DirectX::XMFLOAT2 POINT_POSITION = { SCREEN_WIDTH - 96.0f, 8.0f };
 
 	int m_UiTexid;							// UIで使うテクスチャ管理ID
 	double m_Time;							// 経過時間
 	DirectX::XMFLOAT2 m_DrawTimePos;		// 時間表示場所
-	int m_Pointo;							// 獲得ポイント
+	int m_Point;							// 獲得ポイント
 	DirectX::XMFLOAT2 m_DrawPointPos;		// 獲得ポイント表示場所
 
 public:

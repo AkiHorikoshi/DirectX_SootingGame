@@ -28,7 +28,7 @@ Player::Player()
 	m_Velocity = {};
 	m_Speed = PLAYER_SPEED;
 	m_ShotDelay = SHOTDELAY;
-	m_Collision = { {32.0f, 32.0f}, 32.0f };
+	m_Collision = { {16.0f, 16.0f}, 16.0f };
 	m_Enable = true;
 }
 
@@ -122,35 +122,10 @@ void Player::Draw()
 	Sprite_Draw(m_Texid, m_Position, m_Size, { 0, 0 }, { 512, 512 });
 }
 
-bool Player::IsEnable()
-{
-	return m_Enable;
-}
-
 Circle Player::GetCollision()
 {
 	float cx = m_Collision.center.x + m_Position.x;
 	float cy = m_Collision.center.y + m_Position.y;
 
 	return { {cx, cy}, m_Collision.radius };
-}
-
-void Player::Destroy()
-{
-	m_Enable = false;
-}
-
-void Player::Speed(float speed)
-{
-	m_Speed = speed;
-}
-
-XMFLOAT2 Player::GetPosition()
-{
-	return m_Position;
-}
-
-XMFLOAT2 Player::GetSize()
-{
-	return m_Size;
 }

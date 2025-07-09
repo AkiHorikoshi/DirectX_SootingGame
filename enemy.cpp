@@ -44,7 +44,7 @@ struct Enemy
 	int hp;
 	float offsetY;				// 発生地点Y座標
 	bool isEnable;				// 使用中フラグ
-	bool isDanege;				// ダメージを受けたか
+	bool isDamege;				// ダメージを受けたか
 };
 
 
@@ -125,9 +125,9 @@ void EnemyDraw()
 	{
 		if (!ene.isEnable)	continue;
 
-		Sprite_Draw(ene.type->texid, ene.position, ene.size, ene.type->tPos, ene.type->tSize,ene.isDanege ? XMFLOAT4{1.0f,1.0f,0.0f,1.0f} : XMFLOAT4{1.0f, 1.0f, 0.0f, 1.0f});
+		Sprite_Draw(ene.type->texid, ene.position, ene.size, ene.type->tPos, ene.type->tSize,ene.isDamege ? XMFLOAT4{1.0f,1.0f,0.0f,1.0f} : XMFLOAT4{1.0f, 1.0f, 0.0f, 1.0f});
 		
-		ene.isDanege = false;
+		ene.isDamege = false;
 	}
 }
 
@@ -146,7 +146,7 @@ void CreateEnemy(ENEMY_TYPE_ID id, const DirectX::XMFLOAT2& position)
 		ene.lifeTime = 0.0;
 		ene.hp = g_EnemyType[id].hp_max;
 		ene.offsetY = position.y;
-		ene.isDanege = false;
+		ene.isDamege = false;
 		break;
 	}
 }
@@ -171,15 +171,12 @@ Circle EnemyGetCollision(int index)
 	return { {cx,cy},g_Enemys[index].type->collision.radius };
 }
 
-void EnemyDamege(int index)
+int EnemyDamege(int index)
 {
 	g_Enemys[index].hp--;
-	g_Enemys[index].isDanege = true;
+	g_Enemys[index].isDamege = true;
 
-	if (g_Enemys[index].hp <= 0)
-	{
-		g_Enemys[index].isEnable = false;
-	}
+	return g_Enemys[index].hp;
 }
 
 void EnemyDestory(int index)

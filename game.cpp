@@ -23,8 +23,8 @@ void HitJudgmentBulletVSEnemy();
 void HitJudgmentPlayerVSEnemy();
 
 
-UI g_Ui;
-Player g_Player;
+static UI g_Ui;
+static Player g_Player;
 // Effect g_Effect;
 
 
@@ -36,8 +36,8 @@ void GameInitialize()
 	EnemyInitialize();
 	EnemySpawnerInitialize();
 
-	CreateEnemySpawner({ SCREEN_WIDTH, 300.0f }, ENEMY_01, 3.0, 3.0, 100);
-	CreateEnemySpawner({ 1500.0f, 300.0f }, ENEMY_02, 5.0, 1.0, 100);
+	CreateEnemySpawner({ SCREEN_WIDTH, 300.0f }, ENEMY_01, 1.0, 3.0, 100);
+	CreateEnemySpawner({ SCREEN_WIDTH, 300.0f }, ENEMY_02, 3.0, 1.0, 100);
 }
 
 void GameFinalize()
@@ -92,9 +92,12 @@ void HitJudgmentBulletVSEnemy()
 			{
 				// 当たった弾とエネミーを消す
 				BulletDestroy(bulli);
-				EnemyDamege(enei);
-
-				g_Ui.AddPoint(1);
+				int ehp = EnemyDamege(enei);
+				if (ehp <= 0)
+				{
+					EnemyDestory(enei);
+					g_Ui.AddPoint(1);
+				}
 			}
 		}
 	}
@@ -112,9 +115,12 @@ void HitJudgmentPlayerVSEnemy()
 		{
 			// 当たった弾とエネミーを消す
 			g_Player.Destroy();
-			EnemyDamege(enei);
-
-			g_Ui.AddPoint(1);
+			int ehp = EnemyDamege(enei);
+			if (ehp <= 0)
+			{
+				EnemyDestory(enei);
+				g_Ui.AddPoint(1);
+			}
 		}
 	}
 }

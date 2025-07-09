@@ -30,9 +30,10 @@ struct AnimPatternData
 
 struct AnimPlayData
 {
-	int		m_PatternId = -1;					// アニメーションパターンID
-	int		m_PatternCount = 0;					// 現在のパターン番号
-	double  m_Accumulated_time = 0;				// 累積時間
+	int		m_PatternId = -1;				// アニメーションパターンID
+	int		m_PatternCount = 0;				// 現在のパターン番号
+	double  m_Accumulated_time = 0;			// 累積時間
+	bool    m_IsStopped = false;			// アニメーションし終えたか
 };
 
 
@@ -54,6 +55,7 @@ void SpriteAnimInitialize()
 	for (AnimPlayData& data : g_AnimPlay)
 	{
 		data.m_PatternId = -1;
+		data.m_IsStopped = false;
 	}
 
 
@@ -95,6 +97,8 @@ void SpriteAnimUpdate(double elpsed_time)
 				{
 					g_AnimPlay[i].m_PatternCount = g_AnimPattern[g_AnimPlay[i].m_PatternId].m_PatternMax - 1;
 				}
+
+				g_AnimPlay[i].m_IsStopped = true;
 			}
 			g_AnimPlay[i].m_Accumulated_time -= g_AnimPattern[i].m_SecondsParPatrern;
 
@@ -157,6 +161,7 @@ int SpriteAnimCreatePlayer(int anim_pattern_id)
 		g_AnimPlay[i].m_PatternId = anim_pattern_id;
 		g_AnimPlay[i].m_Accumulated_time = 0.0;
 		g_AnimPlay[i].m_PatternCount = 0;
+		g_AnimPlay[i].m_IsStopped = false;
 
 		return i;
 	}
@@ -165,11 +170,12 @@ int SpriteAnimCreatePlayer(int anim_pattern_id)
 	return -1;
 }
 
-/*
-	改造案
-	
-	停止
-	逆再生
-	再生速度変更
+void SpriteAnimDestroyPlayer(int index)
+{
+	g_AnimPlay[index].m_PatternId = -1;
+}
 
-*/
+bool SpriteAnim_IsStopped(int index)
+{
+	return g_AnimPlay[index].m_IsStopped;
+}

@@ -37,6 +37,6 @@ void CreateEnemy(ENEMY_TYPE_ID id, const DirectX::XMFLOAT2& position);
 bool EnemyIsEnable(int index);
 Circle EnemyGetCollision(int index);
 
-void EnemyDamege(int index);
+int EnemyDamege(int index);
 void EnemyDestory(int index);
 #endif  //ENEMY_H
