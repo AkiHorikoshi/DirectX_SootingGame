@@ -32,7 +32,6 @@ void GameInitialize()
 {
 	g_Ui.UiInitialize();
 	g_Player.Initialize();
-	BulletInitialize();
 	EnemyInitialize();
 	EnemySpawnerInitialize();
 
@@ -44,7 +43,6 @@ void GameFinalize()
 {
 	EnemySpawnerFinalize();
 	EnemyFinalize();
-	BulletFinalize();
 	g_Player.Finalize();
 	g_Ui.UiFinalize();
 }
@@ -53,9 +51,8 @@ void GameUpdate(double elapsed_time)
 {
 	g_Ui.UiUppdate(elapsed_time);
 	EnemySpawnerUpdate(elapsed_time);
-
 	g_Player.Update(elapsed_time);
-	BulletUpdate(elapsed_time);
+
 	EnemyUpdate(elapsed_time);
 
 	HitJudgmentBulletVSEnemy();
@@ -67,7 +64,6 @@ void GameUpdate(double elapsed_time)
 void GameDraw()
 {
 	EnemyDraw();
-	BulletDraw();
 	g_Player.Draw();
 	//g_Effect.EffectDraw();
 
@@ -76,31 +72,31 @@ void GameDraw()
 
 void HitJudgmentBulletVSEnemy()
 {
-	for (int bulli = 0; bulli < BULLET_MAX; bulli++)
-	{
-		// 不使用のバレットは調べずにスルー
-		if (!BulletIsEnable(bulli)) continue;
+	//for (int bulli = 0; bulli < BULLET_MAX; bulli++)
+	//{
+	//	// 不使用のバレットは調べずにスルー
+	//	if (!g_Bullet[bulli].GetEnable()) continue;
 
-		// エネミー全部との当たり判定をとる
-		for (int enei = 0; enei < ENEMY_MAX; enei++)
-		{
-			// 不使用のエネミーは調べずにスルー
-			if (!EnemyIsEnable(enei)) continue;
+	//	// エネミー全部との当たり判定をとる
+	//	for (int enei = 0; enei < ENEMY_MAX; enei++)
+	//	{
+	//		// 不使用のエネミーは調べずにスルー
+	//		if (!EnemyIsEnable(enei)) continue;
 
-			// ヒット判定を調べる
-			if (CollisionIsOverlapCircle(BulletGetCollision(bulli), EnemyGetCollision(enei)))
-			{
-				// 当たった弾とエネミーを消す
-				BulletDestroy(bulli);
-				int ehp = EnemyDamege(enei);
-				if (ehp <= 0)
-				{
-					EnemyDestory(enei);
-					g_Ui.AddPoint(1);
-				}
-			}
-		}
-	}
+	//		// ヒット判定を調べる
+	//		if (CollisionIsOverlapCircle(g_Bullet[bulli].GetCollision(), EnemyGetCollision(enei)))
+	//		{
+	//			// 当たった弾とエネミーを消す
+	//			g_Bullet[bulli].SetEnable(false);
+	//			int ehp = EnemyDamege(enei);
+	//			if (ehp <= 0)
+	//			{
+	//				EnemyDestory(enei);
+	//				g_Ui.AddScore(100);
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 void HitJudgmentPlayerVSEnemy()
@@ -119,7 +115,7 @@ void HitJudgmentPlayerVSEnemy()
 			if (ehp <= 0)
 			{
 				EnemyDestory(enei);
-				g_Ui.AddPoint(1);
+				g_Ui.AddScore(100);
 			}
 		}
 	}

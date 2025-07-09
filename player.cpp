@@ -17,28 +17,39 @@ using namespace DirectX;
 #include "key_logger.h"
 #include "bullet.h"
 #include "collision.h"
+#include "audio.h"
+#include "gun.h"
+
+
+Gun g_Gun;
 
 
 Player::Player()
 {
 	/* ïœêîèâä˙âª */
 	m_Texid = -1;// TextureLoad(L"resource/texture/moai.png");
+	m_SoundId = -1;
+	m_Enable = true;
 	m_Position = { 100.0f, 405.0f };
 	m_Size = { 32.0f, 32.0f };
 	m_Velocity = {};
 	m_Speed = PLAYER_SPEED;
+	m_BulletType = MIDDLE_RANGE_BULLET;
 	m_ShotDelay = SHOTDELAY;
 	m_Collision = { {16.0f, 16.0f}, 16.0f };
-	m_Enable = true;
 }
 
 void Player::Initialize()
 {
 	m_Texid = TextureLoad(L"resource/texture/moai.png");
+	m_SoundId = LoadAudio("resource/audio/maou_se_battle07.wav");
+	g_Gun.Initialize();
 }
 
 void Player::Finalize()
 {
+	UnloadAudio(m_SoundId);
+	g_Gun.Finalize();
 }
 
 void Player::Update(double elapsed_time)
@@ -108,10 +119,12 @@ void Player::Update(double elapsed_time)
 	{
 		if (KeyLoggerIsPressed(KK_SPACE))
 		{
-			ShotBullet(NORMAL_BULLET, { m_Position.x + (m_Size.x * 0.3f), m_Position.y + (m_Size.y * 0.3f) });
+			g_Gun.Shot(m_BulletType, { m_Position.x + (m_Size.x * 0.3f), m_Position.y + (m_Size.y * 0.3f) });
 		}
 		m_ShotDelay = SHOTDELAY;
 	}
+
+	g_Gun.Update(elapsed_time, m_BulletType);
 }
 
 void Player::Draw()
@@ -120,6 +133,7 @@ void Player::Draw()
 	if (!m_Enable) return;
 
 	Sprite_Draw(m_Texid, m_Position, m_Size, { 0, 0 }, { 512, 512 });
+	g_Gun.Draw(m_BulletType);
 }
 
 Circle Player::GetCollision()
@@ -128,4 +142,10 @@ Circle Player::GetCollision()
 	float cy = m_Collision.center.y + m_Position.y;
 
 	return { {cx, cy}, m_Collision.radius };
+}
+
+void Player::Destroy()
+{
+	m_Enable = false;
+	PlayAudio(m_SoundId);
 }

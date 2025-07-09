@@ -17,264 +17,165 @@ using namespace DirectX;
 #include "collision.h"
 
 
-/**********************************     定数定義    **************************************/
-static constexpr float BULLET_SPEED = 300.0f;			// 弾の速度
-
-
-/**********************************     構造体定義    ***************************************/
-struct BulletType
-{
-
-};
-
-struct Bullet
-{
-	XMFLOAT2 position;
-	XMFLOAT2 size;
-	XMFLOAT2 velocity;
-	float offsetY;
-	double lifeTime;
-	bool isEnable;
-	Circle collision;
-};
-
-
-/*******************************     グローバル変数宣言    ************************************/
-static Bullet g_NormalBullets[BULLET_MAX]{};			// ノーマルの弾
-static Bullet g_WaveBullets[BULLET_MAX]{};				// 波打つ弾
-static Bullet g_MiddleBullets[BULLET_MAX]{};			// 全方位中距離弾
-static int g_BulletTexid{};								// 弾のテクスチャ管理番号
-
-
 /************************************     関数宣言    ****************************************/
-void BulletInitialize()
+BulletStatus::BulletStatus()
 {
-	for (Bullet& bull : g_NormalBullets)
-	{
-		bull.isEnable = false;
-	}
-	for (Bullet& bull : g_WaveBullets)
-	{
-		bull.isEnable = false;
-	}
-	for (Bullet& bull : g_MiddleBullets)
-	{
-		bull.isEnable = false;
-	}
-
-	g_BulletTexid = TextureLoad(L"resource/texture/tama1.png");
+	m_Position = { 0.0f,0.0f };
+	m_Size     = { 0.0f,0.0f };
+	m_Velocity = { 0.0f,0.0f };
+	m_LifeTime = 0.0;
 }
 
-void BulletFinalize()
+Bullet::Bullet()
+{
+	m_Texid[NORMAL_BULLET]       = -1;
+	m_Texid[WAVE_BULLET]         = -1;
+	m_Texid[MIDDLE_RANGE_BULLET] = -1;
+	m_Enable = false;
+	m_OffsetY     = 0.0f;
+	m_Collision   = { {0.0f,0.0f}, 0.0f};
+}
+
+void Bullet::Initialize()
+{
+	m_Texid[NORMAL_BULLET]       = TextureLoad(L"resource/texture/tama1.png");
+	m_Texid[WAVE_BULLET]         = TextureLoad(L"resource/texture/tama2.png");
+	m_Texid[MIDDLE_RANGE_BULLET] = TextureLoad(L"resource/texture/tama1.png");
+}
+
+void Bullet::Finalize()
 {
 }
 
-void BulletUpdate(double elapsed_time)
+void Bullet::Update(double elapsed_time, BULLET_TYPE_ID bullet_type, int index)
 {
-	// 通常弾
-	for (Bullet& bull : g_NormalBullets)
+	// 弾の表示時間を計測
+	m_LifeTime += -elapsed_time;
+
+	// 弾の使用フラグを折る
+	if (m_LifeTime <= 0.0)
+	{// 生存時間
+		m_Enable = false;
+	}
+	// 画面外
+	if (m_Position.x > Direct3D_GetBackBufferWidth())
 	{
-		// 弾の表示時間を計測
-		bull.lifeTime += elapsed_time;
-		// 弾の使用フラグを折る
-		if (bull.lifeTime >= 5.0)
-		{
-			bull.isEnable = false;
-		}
-		if (bull.position.x > Direct3D_GetBackBufferWidth())
-		{
-			bull.isEnable = false;
-		}
+		m_Enable = false;
+	}
 
-		// 使われてない弾の処理はしない
-		if (!bull.isEnable)	continue;
+	// 使われてない弾の処理はしない
+	if (!m_Enable) return;
 
+	XMVECTOR pos{};
+	XMVECTOR vel{};
+
+	switch (bullet_type)
+	{
+	/* 通常弾 */
+	case NORMAL_BULLET:
 		// 演算用の変数に格納
-		XMVECTOR pos = XMLoadFloat2(&bull.position);
-		XMVECTOR vel = XMLoadFloat2(&bull.velocity);
+		pos = XMLoadFloat2(&m_Position);
+		vel = XMLoadFloat2(&m_Velocity);
 
 		// ポジションをずらす
 		pos += vel * elapsed_time;
 
 		// 元の変数に返す
-		DirectX::XMStoreFloat2(&bull.position, pos);
-		DirectX::XMStoreFloat2(&bull.velocity, vel);
-	}
+		DirectX::XMStoreFloat2(&m_Position, pos);
+		DirectX::XMStoreFloat2(&m_Velocity, vel);
+		break;
 
-	// 波打つ弾
-	for (int i = 0; i < BULLET_MAX; i++)
-	{
-		// 弾の表示時間を計測
-		g_WaveBullets[i].lifeTime += elapsed_time;
-		// 弾の使用フラグを折る
-		if (g_WaveBullets[i].lifeTime >= 5.0)
+	/* 波打つ弾 */
+	case WAVE_BULLET:
+		if (index % 2 == 0)
 		{
-			g_WaveBullets[i].isEnable = false;
-		}
-		if (g_WaveBullets[i].position.x > Direct3D_GetBackBufferWidth())
-		{
-			g_WaveBullets[i].isEnable = false;
-		}
-
-		// 使われてない弾の処理はしない
-		if (!g_WaveBullets[i].isEnable)	continue;
-
-		if (i % 2 == 0)
-		{
-			g_WaveBullets[i].velocity.y += sinf(g_WaveBullets[i].lifeTime * 15.0f) * 300.0f;
+			m_Velocity.y += sinf(m_LifeTime * 15.0f) * 300.0f;
 		}
 		else
 		{
-			g_WaveBullets[i].velocity.y += -sinf(g_WaveBullets[i].lifeTime * 15.0f) * 300.0f;
+			m_Velocity.y += -sinf(m_LifeTime * 15.0f) * 300.0f;
 		}
 
-		g_WaveBullets[i].position.y = g_WaveBullets[i].offsetY;
+		m_Position.y = m_OffsetY;
 		// 演算用の変数に格納
-		XMVECTOR pos = XMLoadFloat2(&g_WaveBullets[i].position);
-		XMVECTOR vel = XMLoadFloat2(&g_WaveBullets[i].velocity);
+		pos = XMLoadFloat2(&m_Position);
+		vel = XMLoadFloat2(&m_Velocity);
 
 		// ポジションをずらす
 		pos += vel * elapsed_time;
 
 		// 元の変数に返す
-		DirectX::XMStoreFloat2(&g_WaveBullets[i].position, pos);
-		DirectX::XMStoreFloat2(&g_WaveBullets[i].velocity, vel);
-	}
+		DirectX::XMStoreFloat2(&m_Position, pos);
+		DirectX::XMStoreFloat2(&m_Velocity, vel);
+		break;
 
-	// 全方位中距離弾
-	for (int i = 0; i < BULLET_MAX; i++)
-	{
-		// 弾の表示時間を計測
-		g_MiddleBullets[i].lifeTime += elapsed_time;
-		// 弾の使用フラグを折る
-		if (g_MiddleBullets[i].lifeTime >= 0.5)
-		{
-			g_MiddleBullets[i].isEnable = false;
-		}
-		if (g_MiddleBullets[i].position.x > Direct3D_GetBackBufferWidth())
-		{
-			g_MiddleBullets[i].isEnable = false;
-		}
-
-		// 使われてない弾の処理はしない
-		if (!g_MiddleBullets[i].isEnable)	continue;
-
+	/* 全方位中距離弾 */
+	case MIDDLE_RANGE_BULLET:
 		// 演算用の変数に格納
-		XMVECTOR pos = XMLoadFloat2(&g_MiddleBullets[i].position);
-		XMVECTOR vel = XMLoadFloat2(&g_MiddleBullets[i].velocity);
+		pos = XMLoadFloat2(&m_Position);
+		vel = XMLoadFloat2(&m_Velocity);
 
 		// ポジションをずらす
 		pos += vel * elapsed_time;
 
 		// 元の変数に返す
-		DirectX::XMStoreFloat2(&g_MiddleBullets[i].position, pos);
-		DirectX::XMStoreFloat2(&g_MiddleBullets[i].velocity, vel);
+		DirectX::XMStoreFloat2(&m_Position, pos);
+		DirectX::XMStoreFloat2(&m_Velocity, vel);
+		break;
 	}
 }
 
-void BulletDraw()
+void Bullet::Draw(BULLET_TYPE_ID bullet_type)
 {
-	for (Bullet& bull : g_NormalBullets)
-	{
-		if (!bull.isEnable)	continue;
+	if (!m_Enable)	return;
 
-		Sprite_Draw(g_BulletTexid, bull.position, bull.size, { 0, 0 }, { 512, 512 });
-	}
-	for (Bullet& bull : g_WaveBullets)
+	switch (bullet_type)
 	{
-		if (!bull.isEnable)	continue;
-
-		Sprite_Draw(g_BulletTexid, bull.position, bull.size, { 0, 0 }, { 512, 512 });
-	}
-	for (Bullet& bull : g_MiddleBullets)
-	{
-		if (!bull.isEnable)	continue;
-
-		Sprite_Draw(g_BulletTexid, bull.position, bull.size, { 0, 0 }, { 512, 512 });
+	case NORMAL_BULLET:
+		Sprite_Draw(m_Texid[NORMAL_BULLET], m_Position, m_Size, { 0, 0 }, { 512, 512 });
+		break;
+	case WAVE_BULLET:
+		Sprite_Draw(m_Texid[WAVE_BULLET], m_Position, m_Size, { 0, 0 }, { 512, 512 });
+		break;
+	case MIDDLE_RANGE_BULLET:
+		Sprite_Draw(m_Texid[MIDDLE_RANGE_BULLET], m_Position, m_Size, { 0, 0 }, { 512, 512 });
+		break;
 	}
 }
 
-void ShotBullet(BULLET_TYPE_ID type, const XMFLOAT2& position)
+void Bullet::Shot(BULLET_TYPE_ID type, int index, const XMFLOAT2& position)
 {
+	// 使われている時は処理しないで次へ
+	if (m_Enable) return;
+
 	switch (type)
 	{
 	case NORMAL_BULLET:
-		for (Bullet& bull : g_NormalBullets)
-		{
-			// 使われているBullet管理番号の時は処理しないで次へ
-			if (bull.isEnable) continue;
-
-			bull.isEnable = true;
-			bull.lifeTime = 0.0f;
-			bull.position = position;
-			bull.size     = { 32.0f, 32.0f };
-			bull.velocity = { BULLET_SPEED, 0.0 };
-			bull.offsetY  = position.y;
-			bull.collision   = { { 32.0f * 0.7, 32.0f * 0.5f }, (32.0f * 0.9f)};
-			break;
-		}
-	break;
+		m_Enable = true;
+		m_LifeTime = 5.0f;
+		m_Position = position;
+		m_Size = { 32.0f, 32.0f };
+		m_Velocity = { BULLET_SPEED, 0.0 };
+		m_OffsetY = position.y;
+		m_Collision = { { 32.0f * 0.7, 32.0f * 0.5f }, (32.0f * 0.5f) };
+		break;
 	case WAVE_BULLET:
-		for (int i = 0; i < 2; i++)
-		{
-			for (Bullet& bull : g_WaveBullets)
-			{
-				// 使われているBullet管理番号の時は処理しないで次へ
-				if (bull.isEnable) continue;
-
-				bull.isEnable = true;
-				bull.lifeTime = 0.0f;
-				bull.position = position;
-				bull.size     = { 32.0f, 32.0f };
-				bull.velocity = { BULLET_SPEED, 0.0 };
-				bull.offsetY  = position.y;
-				bull.collision   = { { 32.0f * 0.7, 32.0f * 0.5f }, (32.0f * 0.9f) };
-				break;
-			}
-		}
+		m_Enable = true;
+		m_LifeTime = 5.0f;
+		m_Position = position;
+		m_Size = { 32.0f, 32.0f };
+		m_Velocity = { BULLET_SPEED, 0.0 };
+		m_OffsetY = position.y;
+		m_Collision = { { 32.0f * 0.7, 32.0f * 0.5f }, (32.0f * 0.5f) };
 		break;
 	case MIDDLE_RANGE_BULLET:
-		for (int i = 0; i < 16; i++)
-		{
-			for (Bullet& bull : g_MiddleBullets)
-			{
-				// 使われているBullet管理番号の時は処理しないで次へ
-				if (bull.isEnable) continue;
-
-				bull.isEnable = true;
-				bull.lifeTime = 0.0f;
-				bull.position = position;
-				bull.size = { 16.0f, 16.0f };
-				bull.velocity = { BULLET_SPEED * cosf(XM_2PI / 16* i), BULLET_SPEED * sinf(XM_2PI / 16 * i) };
-				bull.offsetY = position.y;
-				bull.collision = { { 16.0f * 0.7, 32.0f * 0.5f }, (16.0f * 0.9f) };
-				break;
-			}
-		}
+		m_Enable = true;
+		m_LifeTime = 0.5f;
+		m_Position = position;
+		m_Size = { 16.0f, 16.0f };
+		m_Velocity = { BULLET_SPEED * cosf(XM_2PI / 16 * index), BULLET_SPEED * sinf(XM_2PI / 16 * index) };
+		m_OffsetY = position.y;
+		m_Collision = { { 16.0f * 0.7, 32.0f * 0.5f }, (16.0f * 0.5f) };
 		break;
 	}
-}
-
-bool BulletIsEnable(int index)
-{
-	// バレットが存在するはずのない値をもらったら false を返す
-	if (index < 0 || index > BULLET_MAX)
-	{
-		return false;
-	}
-
-	return g_NormalBullets[index].isEnable;
-}
-
-Circle BulletGetCollision(int index)
-{
-	float cx = g_NormalBullets[index].collision.center.x + g_NormalBullets[index].position.x;
-	float cy = g_NormalBullets[index].collision.center.y + g_NormalBullets[index].position.y;
-
-	return { {cx, cy}, g_NormalBullets[index].collision.radius };
-}
-
-void BulletDestroy(int index)
-{
-	g_NormalBullets[index].isEnable = false;
 }
